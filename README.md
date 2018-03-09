@@ -1,6 +1,6 @@
 # Teler [![Build Status](https://travis-ci.org/ziiber/teler.svg?branch=master)](https://travis-ci.org/ziiber/teler) 
 
-  A miniature crawler framework. achieved by GOLANG.
+  A micro crawler framework. achieved by GOLANG.
 
 ## Quick Start
 
