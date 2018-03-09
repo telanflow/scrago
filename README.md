@@ -1,4 +1,4 @@
-# Teler  [![Foundation](https://img.shields.io/badge/Golang-Foundation-green.svg)](http://golangfoundation.org)
+# Teler [![Build Status](https://travis-ci.org/ziiber/teler.svg?branch=master)](https://travis-ci.org/ziiber/teler) 
 
   A miniature crawler framework. achieved by GOLANG.
 
