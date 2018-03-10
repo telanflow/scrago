@@ -2,8 +2,6 @@ language: go
 
 go:
     - 1.9
-    - tip
 
-script:
-    - go test -v ./...
+script: true
 
