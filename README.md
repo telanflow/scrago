@@ -62,8 +62,7 @@ func main() {
     ./my_spider
     
 ## Documentation
-
-  ....(In the writing)
+[中文文档](https://github.com/ziiber/teler/wiki/%E6%A1%86%E6%9E%B6%E7%AE%80%E4%BB%8B)
     
 ## License
 
