@@ -8,24 +8,47 @@ import (
 	"github.com/teler/downloader"
 )
 
+type HandlerFunc func(*Context)
+type HandlerChain []HandlerFunc
+func (c HandlerChain) Last() HandlerFunc {
+	if length := len(c); length > 0 {
+		return c[length-1]
+	}
+	return nil
+}
+
 type Context struct {
 	Keys 		map[string]interface{}
-	downloader	downloader.Downloader
-	scheduler	*scheduler.Scheduler
+	request		*http.Request
+	response	*http.Response
+	core		*Core
 	index		int8
 }
 
-func NewContext(s *scheduler.Scheduler, d downloader.Downloader) *Context {
+func NewContext(c *Core) *Context {
 	return &Context{
-		downloader: d,
-		scheduler: s,
+		core: c,
+		index: -1,
 	}
+}
+
+func (c *Context) reset() {
+	c.Keys = nil
 }
 
 func (c *Context) Copy() *Context {
 	var cp = *c
-	cp.index = 0
+	c.request = nil
+	c.response = nil
+	c.index = -1
 	return &cp
+}
+
+func (c *Context) Next() {
+	c.index++
+	for s := int8(len(c.core.middleware)); c.index < s; c.index++ {
+		c.core.middleware[c.index](c)
+	}
 }
 
 func (c *Context) Set(key string, value interface{}) {
@@ -112,23 +135,39 @@ func (c *Context) AddRequest(req *Request) {
 }
 
 func (c *Context) AddQueue(v scheduler.QueueElement) {
-	c.scheduler.Push(v)
+	c.core.scheduler.Push(v)
 }
 
 func (c *Context) GetDownloader() downloader.Downloader {
-	return c.downloader
+	return c.core.downloader
+}
+
+func (c *Context) GetRequest() *http.Request {
+	return c.request
+}
+
+func (c *Context) setRequest(req *http.Request) {
+	c.request = req
+}
+
+func (c *Context) GetResponse() *http.Response {
+	return c.response
+}
+
+func (c *Context) setResponse(resp *http.Response) {
+	c.response = resp
 }
 
 func (c *Context) HttpGet(u string) *pages.Page {
 	req := NewRequest(http.MethodGet, u, nil).GetRequest()
 	req.Header.Set("User-Agent", downloader.RandomUA())
-	res, _ := c.downloader.Do(req)
+	res, _ := c.core.downloader.Do(req)
 	return pages.NewPageForRes(res)
 }
 
 func (c *Context) HttpPost(u string, params interface{}) *pages.Page {
 	req := NewRequest(http.MethodPost, u, params).GetRequest()
 	req.Header.Set("User-Agent", downloader.RandomUA())
-	res, _ := c.downloader.Do(req)
+	res, _ := c.core.downloader.Do(req)
 	return pages.NewPageForRes(res)
 }

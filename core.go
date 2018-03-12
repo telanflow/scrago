@@ -1,7 +1,6 @@
 package teler
 
 import (
-	"github.com/teler/middleware"
 	"github.com/teler/scheduler"
 	"github.com/teler/downloader"
 	"github.com/teler/pages"
@@ -11,15 +10,12 @@ import (
 	"time"
 )
 
-type DownloadBeforeFunc func(r scheduler.QueueElement, next func())
-type DownloadAfterFunc  func(page *pages.Page, next func())
-
 type Core struct {
 	crawler		Crawler					// 爬虫
-	threads		uint					// 线程数
+	threads		int						// 线程数
 	scheduler	*scheduler.Scheduler	// 调度器
 	downloader	downloader.Downloader	// 下载器
-	middleware	middleware.Middleware	// 中间件
+	middleware	HandlerChain			// 中间件
 	pipelines	[]pipeline.Pipeline		// 输出管道
 	sleep		time.Duration			// 任务间隔
 }
@@ -27,10 +23,10 @@ type Core struct {
 func New(c Crawler) *Core {
 	return &Core {
 		crawler: 	c,
-		threads: 	10,
+		threads: 	20,
 		scheduler: 	scheduler.New(),
 		downloader:	downloader.NewHttpDownload(),
-		middleware: middleware.NewHandler(),
+		middleware: make(HandlerChain, 0),
 		pipelines:  make([]pipeline.Pipeline, 0),
 		sleep: 		0,
 	}
@@ -51,62 +47,51 @@ func (self *Core) AddPipeline(p ...pipeline.Pipeline) *Core {
 	return self
 }
 
-func (self *Core) Sleep(t time.Duration) {
-	self.sleep = t
+func (self *Core) SetThreads(n int) *Core {
+	self.threads = n
+	return self
 }
 
-func (self *Core) Use(k string, v interface{}) *Core {
-	switch k {
-	case MIDDLEWARE_DownloadBefore:
-		if hand, ok := v.(DownloadBeforeFunc); ok {
-			self.middleware.Use(MIDDLEWARE_DownloadBefore, hand)
-		} else {
-			log.Panic("type func not DownloadBeforeFunc")
-		}
-	case MIDDLEWARE_DownloadAfter:
-		if hand, ok := v.(DownloadAfterFunc); ok {
-			self.middleware.Use(MIDDLEWARE_DownloadAfter, hand)
-		} else {
-			log.Panic("type func not DownloadAfterFunc")
-		}
-	}
-
+func (self *Core) Use(middleware ...HandlerFunc) *Core {
+	self.middleware = append(self.middleware, middleware...)
 	return self
+}
+
+func (self *Core) Sleep(t time.Duration) {
+	self.sleep = t
 }
 
 func (self *Core) Run() {
 	log.Info("========== Spider Start ==========")
 	defer log.Info("========== Spider End ==========")
 
-	// 初始化
-	var c = NewContext(self.scheduler, self.downloader)
-	self.crawler.Init(c)
+	var gCtx = NewContext(self)
 
-	self.scheduler.Use(scheduler.WithHandler( func(task scheduler.QueueElement) {
-		ctx := c.Copy()
+	self.crawler.Init(gCtx)
 
-		log.Info("Task ID: " + task.Id())
-
-		// 下载器中间件 - Before
-		self.middleware.Exec(MIDDLEWARE_DownloadBefore, func(v interface{}, next func()) {
-			v.(DownloadBeforeFunc)(task, next)
-		})
-
-		req := task.GetRequest()
-		resp, err := self.downloader.Do(req)
+	self.Use(func(ctx *Context) {
+		resp, err := self.downloader.Do(ctx.GetRequest())
 		if err != nil {
 			log.Error(err.Error())
 			return
 		}
 		defer resp.Body.Close()
 
-		page := pages.NewPageForRes(resp)
-		defer page.Free()
+		ctx.setResponse(resp)
+	})
 
-		// 下载器中间件 - After
-		self.middleware.Exec(MIDDLEWARE_DownloadAfter, func(v interface{}, next func()) {
-			v.(DownloadAfterFunc)(page, next)
-		})
+	self.scheduler.SetHandler(func(task scheduler.QueueElement) {
+		log.Info("Task ID: " + task.Id())
+
+		ctx := gCtx.Copy()
+
+		ctx.setRequest(task.GetRequest())
+
+		// Middleware
+		ctx.Next()
+
+		page := pages.NewPageForRes(ctx.GetResponse())
+		defer page.Free()
 
 		// Page Process
 		self.crawler.Process(ctx, page)
@@ -125,7 +110,7 @@ func (self *Core) Run() {
 		if self.sleep > 0 {
 			time.Sleep(self.sleep)
 		}
-	}))
+	})
 
-	self.scheduler.Dispatch()
+	self.scheduler.Dispatch(self.threads)
 }

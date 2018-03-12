@@ -71,6 +71,10 @@ func (self *Scheduler) taskComplete() {
 	self.num--
 }
 
+func (self *Scheduler) SetHandler(h func(QueueElement)) {
+	self.handler = h
+}
+
 // 调度器：停止分发任务
 func (self *Scheduler) StopDispatch() {
 	if self.stopSign != nil {
@@ -79,7 +83,7 @@ func (self *Scheduler) StopDispatch() {
 }
 
 // 调度器：分发任务
-func (self *Scheduler) Dispatch() {
+func (self *Scheduler) Dispatch(threads int) {
 	var (
 		wg	sync.WaitGroup
 		ctx	context.Context
@@ -105,7 +109,7 @@ func (self *Scheduler) Dispatch() {
 		}
 	}()
 
-	for i := 0; uint(i) < self.threads; i++ {
+	for i := 0; i < threads; i++ {
 		wg.Add(1)
 
 		go func() {
@@ -131,10 +135,4 @@ func (self *Scheduler) Dispatch() {
 	}
 
 	wg.Wait()
-}
-
-func WithHandler(handler func(QueueElement)) SchedulerOptions {
-	return func(s *Scheduler) {
-		s.handler = handler
-	}
 }
