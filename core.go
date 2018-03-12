@@ -57,8 +57,9 @@ func (self *Core) Use(middleware ...HandlerFunc) *Core {
 	return self
 }
 
-func (self *Core) Sleep(t time.Duration) {
+func (self *Core) Sleep(t time.Duration) *Core {
 	self.sleep = t
+	return self
 }
 
 func (self *Core) Run() {
