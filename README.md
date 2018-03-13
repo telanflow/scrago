@@ -19,8 +19,8 @@ import (
 	"net/http/cookiejar"
 
 	"github.com/teler"
-	"github.com/teler/pages"
-	"github.com/teler/downloader"
+	"github.com/ziiber/teler/pages"
+	"github.com/ziiber/teler/downloader"
 )
 
 

@@ -1,7 +1,7 @@
 package pipeline
 
 import (
-	"github.com/teler/pages"
+	"github.com/ziiber/teler/pages"
 )
 
 type Pipeline interface {

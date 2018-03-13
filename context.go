@@ -3,9 +3,9 @@ package teler
 import (
 	"time"
 	"net/http"
-	"github.com/teler/pages"
-	"github.com/teler/scheduler"
-	"github.com/teler/downloader"
+	"github.com/ziiber/teler/pages"
+	"github.com/ziiber/teler/scheduler"
+	"github.com/ziiber/teler/downloader"
 )
 
 type HandlerFunc func(*Context)

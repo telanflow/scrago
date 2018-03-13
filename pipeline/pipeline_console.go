@@ -1,6 +1,6 @@
 package pipeline
 
-import "github.com/teler/pages"
+import "github.com/ziiber/teler/pages"
 
 type PipelineConsole struct {
 

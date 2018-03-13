@@ -1,11 +1,11 @@
 package teler
 
 import (
-	"github.com/teler/scheduler"
-	"github.com/teler/downloader"
-	"github.com/teler/pages"
-	"github.com/teler/pipeline"
-	"github.com/teler/log"
+	"github.com/ziiber/teler/scheduler"
+	"github.com/ziiber/teler/downloader"
+	"github.com/ziiber/teler/pages"
+	"github.com/ziiber/teler/pipeline"
+	"github.com/ziiber/teler/log"
 	"net/http"
 	"time"
 )
