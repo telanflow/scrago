@@ -1,4 +1,4 @@
-# Teler   [![GitHub release](https://img.shields.io/badge/pre%20release-v0.3-blue.svg)](https://github.com/ziiber/teler/releases) [![GitHub stars](https://img.shields.io/github/stars/ziiber/teler.svg)](https://github.com/ziiber/teler/stargazers) [![Go version](https://img.shields.io/badge/Go-%3E1.7-brightgreen.svg)](https://github.com/ziiber/teler) [![GitHub license](https://img.shields.io/github/license/ziiber/teler.svg)](https://github.com/ziiber/teler/blob/master/LICENSE)
+# Teler   [![GitHub release](https://img.shields.io/badge/pre%20release-v0.3-blue.svg)](https://github.com/ziiber/teler/releases) [![GitHub stars](https://img.shields.io/github/stars/ziiber/teler.svg)](https://github.com/ziiber/teler/stargazers) [![Go version](https://img.shields.io/badge/Go-%3E1.7-brightgreen.svg)](https://github.com/ziiber/teler) [![GitHub license](https://img.shields.io/github/license/ziiber/teler.svg)](https://github.com/ziiber/teler/blob/master/LICENSE) [![Build Status](https://travis-ci.org/ziiber/teler.svg?branch=master)](https://travis-ci.org/ziiber/teler)
 
 
 
@@ -18,7 +18,7 @@ import (
 	"net/http"
 	"net/http/cookiejar"
 
-	"github.com/teler"
+	"github.com/ziiber/teler"
 	"github.com/ziiber/teler/pages"
 	"github.com/ziiber/teler/downloader"
 )
