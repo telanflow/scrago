@@ -15,6 +15,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"strconv"
 )
 
 // PublicSuffixList provides the public suffix of a domain. For example:
@@ -63,9 +64,8 @@ type Jar struct {
 	// mu locks the remaining fields.
 	mu sync.Mutex
 
-	// entries is a set of entries, keyed by their eTLD+1 and subkeyed by
-	// their name/domain/path.
-	entries map[string]map[string]entry
+	// Storage Interface
+	storage Storage
 
 	// nextSeqNum is the next sequence number assigned to a new cookie
 	// created SetCookies.
@@ -74,9 +74,9 @@ type Jar struct {
 
 // New returns a new cookie jar. A nil *Options is equivalent to a zero
 // Options.
-func New(o *Options) (*Jar, error) {
+func New(s Storage, o *Options) (*Jar, error) {
 	jar := &Jar{
-		entries: make(map[string]map[string]entry),
+		storage: s,
 	}
 	if o != nil {
 		jar.psList = o.PublicSuffixList
@@ -142,6 +142,39 @@ func (e *entry) pathMatch(requestPath string) bool {
 	return false
 }
 
+func (e *entry) record() []string {
+	var (
+		utime int64
+		tailMatch = false // weather we do tail-matchning of the domain name
+		httpOnlyPrefix string
+	)
+	if !e.Expires.Equal(time.Time{}) {
+		utime = e.Expires.Unix()
+	}
+
+	strBool := func(b bool) string {
+		return strings.ToUpper(strconv.FormatBool(b))
+	}
+
+	if e.HttpOnly {
+		httpOnlyPrefix = "#HttpOnly_"
+	}
+
+	return []string{
+		httpOnlyPrefix + e.Domain,
+		strBool(tailMatch),
+		e.Path,
+		strBool(e.Secure),
+		strconv.FormatInt(utime, 10),
+		e.Name,
+		e.Value,
+	}
+}
+
+func (e *entry) String() string {
+	return strings.Join(e.record(), "\t")
+}
+
 // hasDotSuffix reports whether s ends in "."+suffix.
 func hasDotSuffix(s, suffix string) bool {
 	return len(s) > len(suffix) && s[len(s)-len(suffix)-1] == '.' && s[len(s)-len(suffix):] == suffix
@@ -168,7 +201,7 @@ func (j *Jar) cookies(u *url.URL, now time.Time) (cookies []*http.Cookie) {
 	j.mu.Lock()
 	defer j.mu.Unlock()
 
-	submap := j.entries[key]
+	submap := j.storage.Get(key)
 	if submap == nil {
 		return cookies
 	}
@@ -197,9 +230,9 @@ func (j *Jar) cookies(u *url.URL, now time.Time) (cookies []*http.Cookie) {
 	}
 	if modified {
 		if len(submap) == 0 {
-			delete(j.entries, key)
+			j.storage.Delete(key)
 		} else {
-			j.entries[key] = submap
+			j.storage.Set(key, submap)
 		}
 	}
 
@@ -224,7 +257,7 @@ func (j *Jar) cookies(u *url.URL, now time.Time) (cookies []*http.Cookie) {
 
 // SetCookies implements the SetCookies method of the http.CookieJar interface.
 //
-// It does nothing if the URL's scheme is not HTTP or HTTPS.
+// It does nothing if the URL's s`cheme is not HTTP or HTTPS.
 func (j *Jar) SetCookies(u *url.URL, cookies []*http.Cookie) {
 	j.setCookies(u, cookies, time.Now())
 }
@@ -247,7 +280,7 @@ func (j *Jar) setCookies(u *url.URL, cookies []*http.Cookie, now time.Time) {
 	j.mu.Lock()
 	defer j.mu.Unlock()
 
-	submap := j.entries[key]
+	submap := j.storage.Get(key)
 
 	modified := false
 	for _, cookie := range cookies {
@@ -284,9 +317,9 @@ func (j *Jar) setCookies(u *url.URL, cookies []*http.Cookie, now time.Time) {
 
 	if modified {
 		if len(submap) == 0 {
-			delete(j.entries, key)
+			j.storage.Delete(key)
 		} else {
-			j.entries[key] = submap
+			j.storage.Set(key, submap)
 		}
 	}
 }
