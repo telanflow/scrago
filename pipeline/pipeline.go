@@ -1,7 +1,7 @@
 package pipeline
 
 import (
-	"github.com/ziiber/teler/pages"
+	"github.com/telanflow/crawler/pages"
 )
 
 type Pipeline interface {

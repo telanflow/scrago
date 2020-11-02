@@ -2,7 +2,7 @@
 
   A micro crawler framework. achieved by GOLANG.
 
-[![Build Status](https://travis-ci.org/ziiber/teler.svg?branch=master)](https://travis-ci.org/ziiber/teler) [![GitHub stars](https://img.shields.io/github/stars/ziiber/teler.svg)](https://github.com/ziiber/teler/stargazers) [![Go version](https://img.shields.io/badge/Go-%3E1.7-brightgreen.svg)](https://github.com/ziiber/teler)
+[![Build Status](https://travis-ci.org/telanflow/crawler.svg?branch=master)](https://travis-ci.org/telanflow/crawler) [![GitHub stars](https://img.shields.io/github/stars/telanflow/crawler.svg)](https://github.com/telanflow/crawler/stargazers) [![Go version](https://img.shields.io/badge/Go-%3E1.7-brightgreen.svg)](https://github.com/telanflow/crawler)
 [![996.icu](https://img.shields.io/badge/link-996.icu-red.svg)](https://996.icu)
 [![LICENSE](https://img.shields.io/badge/license-NPL%20(The%20996%20Prohibited%20License)-blue.svg)](https://github.com/996icu/996.ICU/blob/master/LICENSE)
 
@@ -10,7 +10,7 @@
 
 #### Download and install
 
-    go get github.com/ziiber/teler
+    go get github.com/telanflow/crawler
     
 #### Create file `my_spider.go`
 ```go
@@ -20,9 +20,9 @@ import (
 	"net/http"
 	"net/http/cookiejar"
 
-	"github.com/ziiber/teler"
-	"github.com/ziiber/teler/pages"
-	"github.com/ziiber/teler/downloader"
+	"github.com/telanflow/crawler"
+	"github.com/telanflow/crawler/pages"
+	"github.com/telanflow/crawler/downloader"
 )
 
 
@@ -64,7 +64,7 @@ func main() {
     ./my_spider
     
 ## Documentation
-[中文文档](https://github.com/ziiber/teler/wiki/%E6%A1%86%E6%9E%B6%E7%AE%80%E4%BB%8B)
+[中文文档](https://github.com/telanflow/crawler/wiki/%E6%A1%86%E6%9E%B6%E7%AE%80%E4%BB%8B)
     
 ## License
 

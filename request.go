@@ -1,12 +1,12 @@
-package teler
+package crawler
 
 import (
-	"io"
-	"strings"
-	"net/url"
-	"net/http"
 	"crypto/md5"
 	"encoding/hex"
+	"io"
+	"net/http"
+	"net/url"
+	"strings"
 )
 
 type Request struct {

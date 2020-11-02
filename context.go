@@ -1,11 +1,11 @@
-package teler
+package crawler
 
 import (
-	"time"
+	"github.com/telanflow/crawler/downloader"
+	"github.com/telanflow/crawler/pages"
+	"github.com/telanflow/crawler/scheduler"
 	"net/http"
-	"github.com/ziiber/teler/pages"
-	"github.com/ziiber/teler/scheduler"
-	"github.com/ziiber/teler/downloader"
+	"time"
 )
 
 type HandlerFunc func(*Context)

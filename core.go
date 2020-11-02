@@ -1,11 +1,11 @@
-package teler
+package crawler
 
 import (
-	"github.com/ziiber/teler/scheduler"
-	"github.com/ziiber/teler/downloader"
-	"github.com/ziiber/teler/pages"
-	"github.com/ziiber/teler/pipeline"
-	"github.com/ziiber/teler/log"
+	"github.com/telanflow/crawler/downloader"
+	"github.com/telanflow/crawler/log"
+	"github.com/telanflow/crawler/pages"
+	"github.com/telanflow/crawler/pipeline"
+	"github.com/telanflow/crawler/scheduler"
 	"net/http"
 	"time"
 )
@@ -32,46 +32,46 @@ func New(c Crawler) *Core {
 	}
 }
 
-func (self *Core) AddUrl(u string) *Core {
-	self.scheduler.Push(NewRequest(http.MethodGet, u, nil))
-	return self
+func (c *Core) AddUrl(u string) *Core {
+	c.scheduler.Push(NewRequest(http.MethodGet, u, nil))
+	return c
 }
 
-func (self *Core) AddRequest(req *Request) *Core {
-	self.scheduler.Push(req)
-	return self
+func (c *Core) AddRequest(req *Request) *Core {
+	c.scheduler.Push(req)
+	return c
 }
 
-func (self *Core) AddPipeline(p ...pipeline.Pipeline) *Core {
-	self.pipelines = append(self.pipelines, p...)
-	return self
+func (c *Core) AddPipeline(p ...pipeline.Pipeline) *Core {
+	c.pipelines = append(c.pipelines, p...)
+	return c
 }
 
-func (self *Core) SetThreads(n int) *Core {
-	self.threads = n
-	return self
+func (c *Core) SetThreads(n int) *Core {
+	c.threads = n
+	return c
 }
 
-func (self *Core) Use(middleware ...HandlerFunc) *Core {
-	self.middleware = append(self.middleware, middleware...)
-	return self
+func (c *Core) Use(middleware ...HandlerFunc) *Core {
+	c.middleware = append(c.middleware, middleware...)
+	return c
 }
 
-func (self *Core) Sleep(t time.Duration) *Core {
-	self.sleep = t
-	return self
+func (c *Core) Sleep(t time.Duration) *Core {
+	c.sleep = t
+	return c
 }
 
-func (self *Core) Run() {
+func (c *Core) Run() {
 	log.Info("========== Spider Start ==========")
 	defer log.Info("========== Spider End ==========")
 
-	var gCtx = NewContext(self)
+	var gCtx = NewContext(c)
 
-	self.crawler.Init(gCtx)
+	c.crawler.Init(gCtx)
 
-	self.Use(func(ctx *Context) {
-		resp, err := self.downloader.Do(ctx.GetRequest())
+	c.Use(func(ctx *Context) {
+		resp, err := c.downloader.Do(ctx.GetRequest())
 		if err != nil {
 			log.Error(err.Error())
 			return
@@ -81,7 +81,7 @@ func (self *Core) Run() {
 		ctx.setResponse(resp)
 	})
 
-	self.scheduler.SetHandler(func(task scheduler.QueueElement) {
+	c.scheduler.SetHandler(func(task scheduler.QueueElement) {
 		log.Info("Task ID: " + task.Id())
 
 		ctx := gCtx.Copy()
@@ -95,23 +95,23 @@ func (self *Core) Run() {
 		defer page.Free()
 
 		// Page Process
-		self.crawler.Process(ctx, page)
+		c.crawler.Process(ctx, page)
 
 		// Page Item
 		items := page.GetItem()
-		self.crawler.Output(items)
+		c.crawler.Output(items)
 
 		// Pipeline
-		if len(self.pipelines) > 0 {
-			for _, v := range self.pipelines {
+		if len(c.pipelines) > 0 {
+			for _, v := range c.pipelines {
 				v.Output(items)
 			}
 		}
 
-		if self.sleep > 0 {
-			time.Sleep(self.sleep)
+		if c.sleep > 0 {
+			time.Sleep(c.sleep)
 		}
 	})
 
-	self.scheduler.Dispatch(self.threads)
+	c.scheduler.Dispatch(c.threads)
 }

@@ -1,8 +1,8 @@
-package teler
+package crawler
 
 import (
-	"github.com/ziiber/teler/pages"
-	"github.com/ziiber/teler/pipeline"
+	"github.com/telanflow/crawler/pages"
+	"github.com/telanflow/crawler/pipeline"
 )
 
 type Crawler interface {

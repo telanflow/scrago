@@ -1,9 +1,9 @@
-package teler
+package crawler
 
 const (
-	Author	= "telan"
+	Author	= "telanflow"
 	Date	= "2018.03.07"
-	Name	= "teler"
-	Version = "0.3"
+	Name	= "crawler"
+	Version = "1.0"
 	DefaultUserAgent	=	Name + "/" + Version
 )
