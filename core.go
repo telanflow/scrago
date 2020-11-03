@@ -1,11 +1,11 @@
-package crawler
+package scrago
 
 import (
-	"github.com/telanflow/crawler/downloader"
-	"github.com/telanflow/crawler/log"
-	"github.com/telanflow/crawler/pages"
-	"github.com/telanflow/crawler/pipeline"
-	"github.com/telanflow/crawler/scheduler"
+	"github.com/telanflow/scrago/downloader"
+	"github.com/telanflow/scrago/log"
+	"github.com/telanflow/scrago/pages"
+	"github.com/telanflow/scrago/pipeline"
+	"github.com/telanflow/scrago/scheduler"
 	"net/http"
 	"time"
 )

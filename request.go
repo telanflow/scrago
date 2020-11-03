@@ -1,4 +1,4 @@
-package crawler
+package scrago
 
 import (
 	"crypto/md5"

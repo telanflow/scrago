@@ -1,8 +1,8 @@
-package crawler
+package scrago
 
 import (
-	"github.com/telanflow/crawler/pages"
-	"github.com/telanflow/crawler/pipeline"
+	"github.com/telanflow/scrago/pages"
+	"github.com/telanflow/scrago/pipeline"
 )
 
 type Crawler interface {

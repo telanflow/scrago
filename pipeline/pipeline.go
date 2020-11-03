@@ -1,7 +1,7 @@
 package pipeline
 
 import (
-	"github.com/telanflow/crawler/pages"
+	"github.com/telanflow/scrago/pages"
 )
 
 type Pipeline interface {

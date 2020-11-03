@@ -1,6 +1,6 @@
 package pipeline
 
-import "github.com/telanflow/crawler/pages"
+import "github.com/telanflow/scrago/pages"
 
 type PipelineConsole struct {
 
